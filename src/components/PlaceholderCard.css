@@ -1,0 +1,19 @@
+.placeholder-card {
+  max-width: 560px;
+}
+.placeholder-card .page-sub {
+  margin-bottom: 0;
+}
+.placeholder-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 3px 8px;
+  margin-bottom: 14px;
+}

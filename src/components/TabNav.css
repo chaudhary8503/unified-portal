@@ -1,0 +1,23 @@
+nav.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+nav.tabs button {
+  border: none;
+  background: transparent;
+  padding: 9px 18px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  border-radius: 7px;
+}
+nav.tabs button:hover {
+  color: var(--ink);
+}
+nav.tabs button.active {
+  background: var(--brand-light);
+  color: var(--brand);
+}

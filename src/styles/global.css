@@ -1,0 +1,63 @@
+@import './tokens.css';
+
+/* Base styles below are the shared subset of production-monitor's global.css
+   (form/sidebar rules omitted — this shell has no forms or sidebars). */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 28px;
+  box-shadow: 0 1px 3px rgba(27, 35, 33, 0.05);
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+
+h1.page-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+p.page-sub {
+  font-size: 14px;
+  color: var(--muted);
+  margin: 0 0 28px;
+}
+
+/* ---------- page container ---------- */
+.page {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 40px 48px;
+}
+.page-inner {
+  width: 100%;
+  max-width: 960px;
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 28px 16px;
+  }
+}
