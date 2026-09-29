@@ -1,33 +1,45 @@
-import { useState, type ComponentType } from 'react';
+import { useCallback, useState } from 'react';
 import './App.css';
+import { endSession, hasSession, startSession } from './auth';
 import Header from './components/Header';
-import type { View } from './components/TabNav';
-import InventoryPage from './pages/InventoryPage';
+import WelcomeScreen from './components/WelcomeScreen';
+import LoginPage from './pages/LoginPage';
 import OverviewPage from './pages/OverviewPage';
-import ProductionMonitorPage from './pages/ProductionMonitorPage';
-import RateCalculatorPage from './pages/RateCalculatorPage';
-import SalesDashboardPage from './pages/SalesDashboardPage';
 
-const PAGES: Record<View, ComponentType> = {
-  overview: OverviewPage,
-  'rate-calculator': RateCalculatorPage,
-  production: ProductionMonitorPage,
-  sales: SalesDashboardPage,
-  inventory: InventoryPage,
-};
+type Screen = 'login' | 'welcome' | 'portal';
 
 function App() {
-  const [view, setView] = useState<View>('overview');
-  const Page = PAGES[view];
+  const [screen, setScreen] = useState<Screen>(() => (hasSession() ? 'portal' : 'login'));
+  const showPortal = useCallback(() => setScreen('portal'), []);
+
+  if (screen === 'login') {
+    return (
+      <LoginPage
+        onSuccess={() => {
+          startSession();
+          setScreen('welcome');
+        }}
+      />
+    );
+  }
+
+  if (screen === 'welcome') {
+    return <WelcomeScreen onDone={showPortal} />;
+  }
 
   return (
     <div className="app-shell">
-      <Header active={view} onChange={setView} />
+      <Header
+        onSignOut={() => {
+          endSession();
+          setScreen('login');
+        }}
+      />
 
       <main className="app-body">
         <div className="page">
           <div className="page-inner">
-            <Page />
+            <OverviewPage />
           </div>
         </div>
       </main>

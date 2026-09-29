@@ -1,0 +1,135 @@
+.alert-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px 14px;
+  box-shadow: 0 1px 3px rgba(27, 35, 33, 0.05);
+}
+.alert-card.flagged {
+  border-top-color: var(--amber);
+}
+.alert-card.clear {
+  border-top-color: var(--green);
+}
+
+.alert-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.alert-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  flex-shrink: 0;
+  background: var(--brand-light);
+  color: var(--brand);
+}
+.alert-module {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.alert-count {
+  min-width: 22px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+}
+.flagged .alert-count {
+  background: var(--amber-light);
+  color: var(--amber);
+}
+.clear .alert-count {
+  background: var(--green-light);
+  color: var(--green);
+}
+
+.alert-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.alert-list li {
+  display: flex;
+  gap: 10px;
+}
+.alert-dot {
+  width: 7px;
+  height: 7px;
+  margin-top: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--amber);
+}
+.alert-item {
+  min-width: 0;
+}
+/* Clamp to 3 lines so long issues don't stretch the row; full text in title tooltip. */
+.alert-text {
+  margin: 0 0 2px;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--ink);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.alert-when {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.alert-clear {
+  margin: 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.alert-foot {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 12.5px;
+}
+/* List grows to fill the card so the footer always sits at the bottom. */
+.alert-list,
+.alert-clear {
+  flex: 1;
+  margin-bottom: 16px;
+}
+.alert-more {
+  color: var(--muted);
+}
+.alert-foot a {
+  color: var(--brand);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.alert-foot a:hover {
+  text-decoration: underline;
+}
