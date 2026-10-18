@@ -1,22 +1,63 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import './App.css';
-import { endSession, hasSession, startSession } from './auth';
-import Header from './components/Header';
+import { canOpenModule, loadSessionUser, signOut, type SessionUser } from './auth';
+import Header, { type View } from './components/Header';
 import WelcomeScreen from './components/WelcomeScreen';
+import { supabase } from './lib/supabase';
+import { MODULES } from './modules';
+import ActivityPage from './pages/ActivityPage';
 import LoginPage from './pages/LoginPage';
 import OverviewPage from './pages/OverviewPage';
+import TeamPage from './pages/TeamPage';
 
-type Screen = 'login' | 'welcome' | 'portal';
+type Screen = 'loading' | 'login' | 'welcome' | 'portal';
 
 function App() {
-  const [screen, setScreen] = useState<Screen>(() => (hasSession() ? 'portal' : 'login'));
+  const [screen, setScreen] = useState<Screen>('loading');
+  const [user, setUser] = useState<SessionUser | null>(null);
+  const [view, setView] = useState<View>('overview');
   const showPortal = useCallback(() => setScreen('portal'), []);
 
-  if (screen === 'login') {
+  // Restore an existing session on load (refresh keeps you signed in).
+  useEffect(() => {
+    let cancelled = false;
+    loadSessionUser()
+      .then(async (u) => {
+        if (cancelled) return;
+        if (u) {
+          setUser(u);
+          setScreen('portal');
+        } else {
+          await signOut(); // clears a session belonging to a deactivated account
+          setScreen('login');
+        }
+      })
+      .catch(() => !cancelled && setScreen('login'));
+
+    // Session expired or signed out elsewhere → back to login.
+    const { data } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT') {
+        setUser(null);
+        setView('overview');
+        setScreen('login');
+      }
+    });
+    return () => {
+      cancelled = true;
+      data.subscription.unsubscribe();
+    };
+  }, []);
+
+  if (screen === 'loading') {
+    return <div className="app-loading" role="status">Loading…</div>;
+  }
+
+  if (screen === 'login' || !user) {
     return (
       <LoginPage
-        onSuccess={() => {
-          startSession();
+        onSuccess={(u) => {
+          setUser(u);
+          setView('overview');
           setScreen('welcome');
         }}
       />
@@ -24,22 +65,34 @@ function App() {
   }
 
   if (screen === 'welcome') {
-    return <WelcomeScreen onDone={showPortal} />;
+    return <WelcomeScreen name={user.displayName} onDone={showPortal} />;
   }
+
+  const visibleModules = MODULES.filter((m) =>
+    user.isOwner ? true : m.permissionModule !== null && canOpenModule(user, m.permissionModule),
+  );
+
+  // Team and Activity are owner-only.
+  const activeView: View = user.isOwner ? view : 'overview';
 
   return (
     <div className="app-shell">
       <Header
+        name={user.displayName}
+        isOwner={user.isOwner}
+        view={activeView}
+        onNavigate={setView}
         onSignOut={() => {
-          endSession();
-          setScreen('login');
+          void signOut();
         }}
       />
 
       <main className="app-body">
         <div className="page">
           <div className="page-inner">
-            <OverviewPage />
+            {activeView === 'overview' && <OverviewPage modules={visibleModules} />}
+            {activeView === 'team' && <TeamPage currentUserId={user.profile.user_id} />}
+            {activeView === 'activity' && <ActivityPage />}
           </div>
         </div>
       </main>

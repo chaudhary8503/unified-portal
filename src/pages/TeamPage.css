@@ -1,0 +1,360 @@
+.team-notice {
+  margin-bottom: 16px;
+}
+
+.team-list {
+  padding: 0;
+  overflow: hidden;
+}
+.team-list-head,
+.team-row {
+  display: grid;
+  grid-template-columns: minmax(200px, 1.3fr) 120px 2fr 90px;
+  align-items: center;
+  gap: 16px;
+  padding: 0 20px;
+}
+.team-list-head {
+  height: 40px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.team-row {
+  width: 100%;
+  min-height: 64px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+.team-row:last-of-type {
+  border-bottom: none;
+}
+.team-row:hover {
+  background: #fafbfc;
+}
+.team-row:hover .team-open {
+  color: var(--brand);
+}
+.team-row:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: -2px;
+}
+.team-row.inactive .team-person {
+  opacity: 0.6;
+}
+
+.team-person {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.team-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--brand-light);
+  color: var(--brand);
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.team-person-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.team-name {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.team-username {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.team-modules {
+  font-size: 13px;
+  min-width: 0;
+}
+.team-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.team-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 4px 3px 9px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 500;
+}
+.team-chip-count {
+  padding: 0 6px;
+  border-radius: 4px;
+  background: var(--bg);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.team-open {
+  justify-self: end;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.team-foot {
+  margin: 14px 2px 0;
+  font-size: 13px;
+}
+
+@media (max-width: 760px) {
+  .team-list-head {
+    display: none;
+  }
+  .team-row {
+    grid-template-columns: 1fr auto;
+    gap: 8px 12px;
+    padding: 14px 16px;
+  }
+  .team-modules {
+    grid-column: 1 / -1;
+  }
+  .team-open {
+    display: none;
+  }
+}
+
+/* ---------- member detail and add form ---------- */
+
+.detail-back {
+  margin-bottom: 18px;
+  font-size: 13.5px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.detail-card {
+  padding: 22px;
+}
+.detail-card + .detail-card {
+  margin-top: 16px;
+}
+.detail-card .section-title {
+  margin-bottom: 4px;
+}
+.detail-card-sub {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.form-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+.form-row .field {
+  flex: 1;
+}
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.status-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.credentials {
+  margin: 4px 0 0;
+  padding: 12px 14px;
+  border: 1px dashed var(--border);
+  border-radius: 7px;
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  line-height: 1.7;
+  background: var(--bg);
+}
+
+.add-card {
+  max-width: 520px;
+}
+
+/* ---------- permission module cards ---------- */
+
+.perm-card {
+  padding: 0;
+  overflow: hidden;
+}
+.perm-card + .perm-card {
+  margin-top: 16px;
+}
+.perm-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.perm-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14.5px;
+  font-weight: 600;
+}
+.perm-count {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.preset-group {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+}
+.preset-group button {
+  border: none;
+  background: transparent;
+  padding: 5px 11px;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+}
+.preset-group button:hover {
+  color: var(--ink);
+}
+.preset-group button.active {
+  background: var(--surface);
+  color: var(--brand);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(27, 35, 33, 0.08);
+}
+.preset-group button:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.perm-list {
+  list-style: none;
+  margin: 0;
+  padding: 6px 0;
+}
+.perm-item label {
+  display: flex;
+  gap: 12px;
+  padding: 9px 20px;
+  cursor: pointer;
+}
+.perm-item label:hover {
+  background: #fafbfc;
+}
+.perm-item input {
+  width: 16px;
+  height: 16px;
+  margin: 2px 0 0;
+  flex-shrink: 0;
+  accent-color: var(--brand);
+  cursor: pointer;
+}
+.perm-label {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 500;
+}
+.perm-desc {
+  display: block;
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+.perm-empty {
+  margin: 0;
+  padding: 16px 20px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.perm-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+}
+.perm-foot .notice {
+  margin-right: auto;
+  padding: 6px 10px;
+}
+.perm-unsaved {
+  margin-right: auto;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--amber);
+}
+
+.status-error {
+  margin-top: 12px;
+}
+
+.detail-card .section-title + .form-stack {
+  margin-top: 14px;
+}

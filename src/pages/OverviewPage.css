@@ -45,3 +45,12 @@
     grid-template-columns: 1fr;
   }
 }
+
+.overview-empty {
+  max-width: 520px;
+  margin: 40px auto 0;
+  text-align: center;
+}
+.overview-empty .page-sub {
+  margin-bottom: 0;
+}

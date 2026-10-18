@@ -1,4 +1,3 @@
-import { OWNER_NAME } from '../auth';
 import './Header.css';
 
 const TODAY = new Date().toLocaleDateString('en-GB', {
@@ -8,11 +7,23 @@ const TODAY = new Date().toLocaleDateString('en-GB', {
   year: 'numeric',
 });
 
+export type View = 'overview' | 'team' | 'activity';
+
+const OWNER_NAV: { id: View; label: string }[] = [
+  { id: 'overview', label: 'Overview' },
+  { id: 'team', label: 'Team' },
+  { id: 'activity', label: 'Activity' },
+];
+
 interface HeaderProps {
+  name: string;
+  isOwner: boolean;
+  view: View;
+  onNavigate: (view: View) => void;
   onSignOut: () => void;
 }
 
-function Header({ onSignOut }: HeaderProps) {
+function Header({ name, isOwner, view, onNavigate, onSignOut }: HeaderProps) {
   return (
     <header>
       <div className="brand">
@@ -22,13 +33,30 @@ function Header({ onSignOut }: HeaderProps) {
           <div className="brand-sub">All business modules in one place</div>
         </div>
       </div>
+
+      {isOwner && (
+        <nav className="header-nav" aria-label="Portal sections">
+          {OWNER_NAV.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              className={`header-nav-item ${view === item.id ? 'active' : ''}`}
+              aria-current={view === item.id ? 'page' : undefined}
+              onClick={() => onNavigate(item.id)}
+            >
+              {item.label}
+            </button>
+          ))}
+        </nav>
+      )}
+
       <div className="header-right">
         <div className="header-date">{TODAY}</div>
         <div className="header-user">
           <span className="header-avatar" aria-hidden="true">
-            {OWNER_NAME[0]}
+            {name[0]?.toUpperCase()}
           </span>
-          <span className="header-name">{OWNER_NAME}</span>
+          <span className="header-name">{name}</span>
           <button type="button" className="header-signout" onClick={onSignOut}>
             Sign out
           </button>

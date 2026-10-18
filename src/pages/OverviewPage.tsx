@@ -1,6 +1,6 @@
 import AlertCard, { type AlertItem } from '../components/AlertCard';
 import ModuleTile from '../components/ModuleTile';
-import { MODULES, type ModuleId } from '../modules';
+import type { ModuleId, PortalModule } from '../modules';
 import './OverviewPage.css';
 
 /*
@@ -33,8 +33,22 @@ const ALERTS: Record<ModuleId, AlertItem[]> = {
   ],
 };
 
-function OverviewPage() {
-  const flaggedCount = Object.values(ALERTS).reduce((sum, items) => sum + items.length, 0);
+interface OverviewPageProps {
+  /** Only the modules the signed-in user may open. */
+  modules: PortalModule[];
+}
+
+function OverviewPage({ modules }: OverviewPageProps) {
+  if (modules.length === 0) {
+    return (
+      <div className="card overview-empty">
+        <h1 className="page-title">No modules assigned yet</h1>
+        <p className="page-sub">Ask the owner to give you access to the modules you work in.</p>
+      </div>
+    );
+  }
+
+  const flaggedCount = modules.reduce((sum, m) => sum + ALERTS[m.id].length, 0);
 
   return (
     <>
@@ -46,7 +60,7 @@ function OverviewPage() {
           </span>
         </div>
         <div className="overview-grid">
-          {MODULES.map((m) => (
+          {modules.map((m) => (
             <AlertCard key={m.id} module={m} items={ALERTS[m.id]} />
           ))}
         </div>
@@ -57,7 +71,7 @@ function OverviewPage() {
           <h2 className="section-label">Open a module</h2>
         </div>
         <div className="overview-grid">
-          {MODULES.map((m) => (
+          {modules.map((m) => (
             <ModuleTile key={m.id} module={m} />
           ))}
         </div>

@@ -71,3 +71,8 @@
 .login-submit:hover {
   background: var(--brand-dark);
 }
+
+.login-submit:disabled {
+  opacity: 0.7;
+  cursor: default;
+}

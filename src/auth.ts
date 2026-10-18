@@ -1,44 +1,104 @@
 /*
-  DUMMY AUTH — client-side only, for the prototype.
-  The credentials below ship inside the JS bundle, so this only keeps casual
-  visitors out; it is NOT real security. The module apps are also still
-  reachable directly by their own URLs.
-  TODO(backend): replace with a real auth provider (server-verified session or
-  token) and protect each module app behind the same login.
+  Real authentication via Supabase Auth.
+
+  Staff log in with a USERNAME. Supabase needs an email, so a username is
+  mapped to a hidden internal address (ali → ali@staff.powerant.local).
+  Nobody ever receives email at that address. Anyone who types a full email
+  (e.g. the developer's owner account) signs in with that email directly.
+
+  Who may do what is decided in the database (portal.profiles,
+  portal.user_permissions + row-level security). The checks here only decide
+  what to SHOW; the database enforces access regardless.
 */
-export const OWNER_NAME = 'Malik';
+import { errorMessage, portal, supabase } from './lib/supabase';
 
-const OWNER_USERNAME = 'malik';
-const OWNER_PASSWORD = 'powerant2026';
+export const STAFF_EMAIL_DOMAIN = 'staff.powerant.local';
 
-const SESSION_KEY = 'powerant-portal-session';
+export type Role = 'owner' | 'employee';
 
-export function checkCredentials(username: string, password: string): boolean {
-  return username.trim().toLowerCase() === OWNER_USERNAME && password === OWNER_PASSWORD;
+export interface Profile {
+  user_id: string;
+  full_name: string;
+  username: string | null;
+  role: Role;
+  active: boolean;
 }
 
-// sessionStorage: stays signed in across refreshes, signs out when the tab closes.
-// Wrapped in try/catch because storage can be blocked (private mode, strict settings).
-export function hasSession(): boolean {
-  try {
-    return sessionStorage.getItem(SESSION_KEY) === '1';
-  } catch {
-    return false;
-  }
+export interface Permission {
+  module: string;
+  permission_key: string;
 }
 
-export function startSession(): void {
-  try {
-    sessionStorage.setItem(SESSION_KEY, '1');
-  } catch {
-    // Storage unavailable — user stays signed in until refresh.
-  }
+export interface SessionUser {
+  profile: Profile;
+  permissions: Permission[];
+  isOwner: boolean;
+  /** Display name for header and welcome screen. */
+  displayName: string;
 }
 
-export function endSession(): void {
-  try {
-    sessionStorage.removeItem(SESSION_KEY);
-  } catch {
-    // Nothing to clear.
+export function usernameToEmail(input: string): string {
+  const value = input.trim().toLowerCase();
+  return value.includes('@') ? value : `${value}@${STAFF_EMAIL_DOMAIN}`;
+}
+
+function friendlyAuthError(message: string): string {
+  const m = message.toLowerCase();
+  if (m.includes('invalid login credentials')) return 'Incorrect username or password.';
+  if (m.includes('banned')) return 'This account has been deactivated. Contact the owner.';
+  if (m.includes('fetch') || m.includes('network')) return 'Cannot reach the server. Check the internet connection.';
+  return message;
+}
+
+/** Signs in and returns the loaded user, or throws an Error with a readable message. */
+export async function signIn(username: string, password: string): Promise<SessionUser> {
+  const { error } = await supabase.auth.signInWithPassword({
+    email: usernameToEmail(username),
+    password,
+  });
+  if (error) throw new Error(friendlyAuthError(error.message));
+
+  const user = await loadSessionUser();
+  if (!user) {
+    await supabase.auth.signOut();
+    throw new Error('This account has been deactivated. Contact the owner.');
   }
+  return user;
+}
+
+export async function signOut(): Promise<void> {
+  await supabase.auth.signOut();
+}
+
+/**
+ * Loads the signed-in user's profile and permissions.
+ * Returns null when there is no session, or the profile is inactive.
+ */
+export async function loadSessionUser(): Promise<SessionUser | null> {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const uid = sessionData.session?.user.id;
+  if (!uid) return null;
+
+  const [profileRes, permsRes] = await Promise.all([
+    portal().from('profiles').select('user_id, full_name, username, role, active').eq('user_id', uid).maybeSingle(),
+    portal().rpc('my_permissions'),
+  ]);
+
+  if (profileRes.error) throw new Error(errorMessage(profileRes.error));
+  if (permsRes.error) throw new Error(errorMessage(permsRes.error));
+
+  const profile = profileRes.data as Profile | null;
+  if (!profile || !profile.active) return null;
+
+  return {
+    profile,
+    permissions: (permsRes.data ?? []) as Permission[],
+    isOwner: profile.role === 'owner',
+    displayName: profile.full_name || profile.username || 'there',
+  };
+}
+
+/** True when the user may open this module (owner, or at least one ticked box). */
+export function canOpenModule(user: SessionUser, module: string): boolean {
+  return user.isOwner || user.permissions.some((p) => p.module === module);
 }
