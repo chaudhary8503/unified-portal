@@ -31,7 +31,7 @@
 
 .overview-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
 }
 
@@ -53,4 +53,19 @@
 }
 .overview-empty .page-sub {
   margin-bottom: 0;
+}
+
+.section-count.idle {
+  color: var(--muted);
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+.section-count.urgent {
+  color: #b3261e;
+  background: #fbe5e3;
+}
+.overview-none {
+  margin: 0;
+  font-size: 14px;
+  color: var(--muted);
 }

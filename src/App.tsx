@@ -6,6 +6,8 @@ import WelcomeScreen from './components/WelcomeScreen';
 import { supabase } from './lib/supabase';
 import { MODULES } from './modules';
 import ActivityPage from './pages/ActivityPage';
+import BusinessesPage from './pages/BusinessesPage';
+import FinancePage from './pages/FinancePage';
 import LoginPage from './pages/LoginPage';
 import OverviewPage from './pages/OverviewPage';
 import TeamPage from './pages/TeamPage';
@@ -72,7 +74,7 @@ function App() {
     user.isOwner ? true : m.permissionModule !== null && canOpenModule(user, m.permissionModule),
   );
 
-  // Team and Activity are owner-only.
+  // Finance, Team, Activity and Businesses are owner-only.
   const activeView: View = user.isOwner ? view : 'overview';
 
   return (
@@ -92,7 +94,9 @@ function App() {
           <div className="page-inner">
             {activeView === 'overview' && <OverviewPage modules={visibleModules} />}
             {activeView === 'team' && <TeamPage currentUserId={user.profile.user_id} />}
+            {activeView === 'finance' && <FinancePage />}
             {activeView === 'activity' && <ActivityPage />}
+            {activeView === 'businesses' && <BusinessesPage />}
           </div>
         </div>
       </main>

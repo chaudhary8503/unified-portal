@@ -1,37 +1,16 @@
-import AlertCard, { type AlertItem } from '../components/AlertCard';
+import { useEffect, useState } from 'react';
+import AlertCard from '../components/AlertCard';
 import ModuleTile from '../components/ModuleTile';
 import type { ModuleId, PortalModule } from '../modules';
+import { fetchModuleAlerts, type AlertsState } from '../overview/alerts';
 import './OverviewPage.css';
 
 /*
-  SAMPLE DATA — static placeholders for now.
-  TODO: each module's list will later be pulled from that module's real
-  exception/alert data (machine overruns and output drops from Production,
-  overdue payments from Sales, stock below reorder level from Inventory,
-  stale rates from Rate Calculator). This is deliberately NOT a stats
-  dashboard: only surface what needs the owner's attention today; an empty
-  list means the module has nothing flagged.
+  "Needs attention today": each module's own alerts (its alerts_summary
+  view, already filtered to what this person may see). This is deliberately
+  NOT a stats dashboard: only what needs attention; an empty list means the
+  module has nothing flagged. Modules not built yet show "Not connected yet".
 */
-const ALERTS: Record<ModuleId, AlertItem[]> = {
-  production: [
-    { text: 'Extruder Line 2 ran 2h 10m past its scheduled cycle on the night shift.', when: 'Yesterday' },
-    { text: 'Wire Drawing output was 28% below the stage average this morning.', when: 'Today, 11:30' },
-    { text: 'No operator entry logged on machine M-04 since 10:00.', when: 'Today' },
-  ],
-  sales: [
-    { text: 'Crescent Traders payment of PKR 485,000 is overdue.', when: '12 days overdue' },
-    { text: 'Order SO-1042 for Al-Noor Electric is due for dispatch tomorrow and not yet packed.', when: 'Due tomorrow' },
-  ],
-  inventory: [
-    { text: '4-core 2.5 mm cable at Arambagh shop is below reorder level (18 coils left).', when: 'Today' },
-    { text: 'Copper rod stock covers about 3 days of production at current usage.', when: 'Today' },
-    { text: 'Stock count at Main Warehouse is short by 6 coils of 7/29 cable.', when: 'Since Monday' },
-  ],
-  'rate-calculator': [
-    { text: "Today's copper rate has not been updated; quotes are using yesterday's price.", when: 'Today' },
-    { text: 'PVC compound rate was last changed 9 days ago. Confirm with supplier.', when: '9 days old' },
-  ],
-};
 
 interface OverviewPageProps {
   /** Only the modules the signed-in user may open. */
@@ -39,6 +18,27 @@ interface OverviewPageProps {
 }
 
 function OverviewPage({ modules }: OverviewPageProps) {
+  const alertModules = modules.filter((m) => m.hasAlerts && m.permissionModule);
+  const [alerts, setAlerts] = useState<Partial<Record<ModuleId, AlertsState>>>({});
+
+  const alertKey = alertModules.map((m) => m.id).join(',');
+  useEffect(() => {
+    let cancelled = false;
+    for (const id of alertKey.split(',').filter(Boolean) as ModuleId[]) {
+      fetchModuleAlerts(id)
+        .catch((err: unknown): AlertsState => ({
+          status: 'error',
+          message: err instanceof Error ? err.message : 'Failed',
+        }))
+        .then((state) => {
+          if (!cancelled) setAlerts((prev) => ({ ...prev, [id]: state }));
+        });
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [alertKey]);
+
   if (modules.length === 0) {
     return (
       <div className="card overview-empty">
@@ -48,22 +48,38 @@ function OverviewPage({ modules }: OverviewPageProps) {
     );
   }
 
-  const flaggedCount = modules.reduce((sum, m) => sum + ALERTS[m.id].length, 0);
+  const states = alertModules.map((m) => alerts[m.id] ?? { status: 'loading' as const });
+  const loading = states.some((st) => st.status === 'loading');
+  const flaggedCount = states.reduce((sum, st) => sum + (st.status === 'ok' ? st.items.length : 0), 0);
+  const urgentCount = states.reduce(
+    (sum, st) => sum + (st.status === 'ok' ? st.items.filter((i) => i.severity === 'critical').length : 0),
+    0,
+  );
 
   return (
     <>
       <section className="overview-section">
         <div className="section-head">
           <h2 className="section-label">Needs attention today</h2>
-          <span className={`section-count ${flaggedCount === 0 ? 'clear' : ''}`}>
-            {flaggedCount === 0 ? 'All clear' : `${flaggedCount} issue${flaggedCount === 1 ? '' : 's'}`}
-          </span>
+          {loading ? (
+            <span className="section-count idle">Checking…</span>
+          ) : (
+            <span className={`section-count ${flaggedCount === 0 ? 'clear' : urgentCount > 0 ? 'urgent' : ''}`}>
+              {flaggedCount === 0
+                ? 'All clear'
+                : `${flaggedCount} issue${flaggedCount === 1 ? '' : 's'}${urgentCount > 0 ? ` · ${urgentCount} urgent` : ''}`}
+            </span>
+          )}
         </div>
-        <div className="overview-grid">
-          {modules.map((m) => (
-            <AlertCard key={m.id} module={m} items={ALERTS[m.id]} />
-          ))}
-        </div>
+        {alertModules.length > 0 ? (
+          <div className="overview-grid">
+            {alertModules.map((m) => (
+              <AlertCard key={m.id} module={m} state={alerts[m.id] ?? { status: 'loading' }} />
+            ))}
+          </div>
+        ) : (
+          <p className="overview-none">No alerts for the modules you use.</p>
+        )}
       </section>
 
       <section className="overview-section">

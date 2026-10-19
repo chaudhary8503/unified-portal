@@ -10,7 +10,7 @@
   portal.user_permissions + row-level security). The checks here only decide
   what to SHOW; the database enforces access regardless.
 */
-import { errorMessage, portal, supabase } from './lib/supabase';
+import { clearSignedIn, errorMessage, markSignedIn, portal, sessionLimitReached, supabase } from './lib/supabase';
 
 export const STAFF_EMAIL_DOMAIN = 'staff.powerant.local';
 
@@ -57,17 +57,27 @@ export async function signIn(username: string, password: string): Promise<Sessio
     password,
   });
   if (error) throw new Error(friendlyAuthError(error.message));
+  markSignedIn();
 
   const user = await loadSessionUser();
   if (!user) {
-    await supabase.auth.signOut();
+    await signOut();
     throw new Error('This account has been deactivated. Contact the owner.');
   }
   return user;
 }
 
+/**
+ * Signs out on THIS computer only ('local'), so signing out at the shop
+ * doesn't also sign the same person out on their phone.
+ * Does nothing when there is no session, so a freshly opened signed-out
+ * tab can't sign out the user's other open tabs.
+ */
 export async function signOut(): Promise<void> {
-  await supabase.auth.signOut();
+  const { data } = await supabase.auth.getSession();
+  if (!data.session) return;
+  clearSignedIn();
+  await supabase.auth.signOut({ scope: 'local' });
 }
 
 /**
@@ -78,6 +88,10 @@ export async function loadSessionUser(): Promise<SessionUser | null> {
   const { data: sessionData } = await supabase.auth.getSession();
   const uid = sessionData.session?.user.id;
   if (!uid) return null;
+  if (sessionLimitReached()) {
+    await signOut();
+    return null;
+  }
 
   const [profileRes, permsRes] = await Promise.all([
     portal().from('profiles').select('user_id, full_name, username, role, active').eq('user_id', uid).maybeSingle(),
@@ -101,4 +115,22 @@ export async function loadSessionUser(): Promise<SessionUser | null> {
 /** True when the user may open this module (owner, or at least one ticked box). */
 export function canOpenModule(user: SessionUser, module: string): boolean {
   return user.isOwner || user.permissions.some((p) => p.module === module);
+}
+
+/*
+  12-hour limit while the app stays open: checked every 30 seconds and
+  whenever the tab comes back into view (e.g. a laptop waking up).
+  Signing out triggers the app's SIGNED_OUT handler, which shows the login.
+  Runs automatically for every app that uses this file.
+*/
+async function enforceSessionLimit(): Promise<void> {
+  const { data } = await supabase.auth.getSession();
+  if (data.session && sessionLimitReached()) await signOut();
+}
+
+if (typeof window !== 'undefined') {
+  window.setInterval(() => void enforceSessionLimit(), 30_000);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') void enforceSessionLimit();
+  });
 }

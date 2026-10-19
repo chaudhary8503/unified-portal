@@ -133,3 +133,72 @@
 .alert-foot a:hover {
   text-decoration: underline;
 }
+
+/* ---------- live alerts (severity always shown as a word too) ---------- */
+.alert-card {
+  --critical: #b3261e;
+  --critical-light: #fbe5e3;
+}
+.alert-card.critical {
+  border-top-color: var(--critical);
+}
+.alert-card.critical .alert-count {
+  background: var(--critical-light);
+  color: var(--critical);
+}
+.alert-card.idle {
+  border-top-color: var(--border);
+}
+.idle .alert-count {
+  background: var(--bg);
+  color: var(--muted);
+}
+
+.alert-link {
+  display: flex;
+  gap: 10px;
+  margin: -4px -6px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  color: inherit;
+  text-decoration: none;
+}
+a.alert-link:hover {
+  background: var(--bg);
+}
+a.alert-link:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 1px;
+}
+
+.alert-dot.warning {
+  background: var(--amber);
+}
+.alert-dot.critical {
+  background: var(--critical);
+}
+.alert-dot.info {
+  background: var(--brand);
+}
+
+.alert-sev {
+  font-weight: 600;
+}
+.alert-sev.warning {
+  color: var(--amber);
+}
+.alert-sev.critical {
+  color: var(--critical);
+}
+.alert-sev.info {
+  color: var(--brand);
+}
+
+.alert-soon {
+  color: var(--muted);
+  font-weight: 600;
+}
+.alert-link {
+  flex: 1;
+  min-width: 0;
+}

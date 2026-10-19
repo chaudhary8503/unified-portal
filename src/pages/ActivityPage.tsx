@@ -179,7 +179,12 @@ function show(value: unknown): string {
 
 /** "sales.invoices" → "an invoice", "inventory.items" → "an item" */
 function humanTable(entityType: string | null): string {
-  const table = (entityType?.split('.').pop() ?? 'record').replace(/_/g, ' ').replace(/s$/, '');
+  const plural = (entityType?.split('.').pop() ?? 'record').replace(/_/g, ' ');
+  const table = plural.endsWith('sses')
+    ? plural.slice(0, -2)
+    : plural.endsWith('ies')
+      ? `${plural.slice(0, -3)}y`
+      : plural.replace(/s$/, '');
   return `${/^[aeiou]/i.test(table) ? 'an' : 'a'} ${table}`;
 }
 

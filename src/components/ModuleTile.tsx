@@ -8,6 +8,20 @@ interface ModuleTileProps {
 
 /** Large launch button for a module — opens the deployed app in a new tab. */
 function ModuleTile({ module }: ModuleTileProps) {
+  if (!module.url) {
+    return (
+      <div className="module-tile module-tile-soon" aria-disabled="true">
+        <span className="module-tile-icon">
+          <ModuleIcon module={module.id} size={24} />
+        </span>
+        <span className="module-tile-text">
+          <span className="module-tile-name">{module.name}</span>
+          <span className="module-tile-desc">{module.description}</span>
+        </span>
+        <span className="module-tile-badge">Coming soon</span>
+      </div>
+    );
+  }
   return (
     <a className="module-tile" href={module.url} target="_blank" rel="noopener noreferrer">
       <span className="module-tile-icon">

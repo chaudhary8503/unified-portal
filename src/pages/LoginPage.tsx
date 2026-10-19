@@ -5,9 +5,11 @@ import './LoginPage.css';
 
 interface LoginPageProps {
   onSuccess: (user: SessionUser) => void;
+  /** App name on the card. Module apps pass their own, e.g. "Inventory". */
+  title?: string;
 }
 
-function LoginPage({ onSuccess }: LoginPageProps) {
+function LoginPage({ onSuccess, title = 'Powerant Portal' }: LoginPageProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(
@@ -34,7 +36,7 @@ function LoginPage({ onSuccess }: LoginPageProps) {
     <div className="login-shell">
       <form className="card login-card" onSubmit={handleSubmit}>
         <img className="login-logo" src="/powerant-logo.jpg" alt="Powerant" />
-        <h1 className="page-title">Powerant Portal</h1>
+        <h1 className="page-title">{title}</h1>
         <p className="page-sub">Sign in with the username and password you were given.</p>
 
         <label htmlFor="username">Username</label>

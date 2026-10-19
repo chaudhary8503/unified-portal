@@ -33,6 +33,22 @@ function ModuleIcon({ module, size = 22 }: ModuleIconProps) {
           <line x1="12" y1="22.08" x2="12" y2="12" />
         </>
       )}
+      {module === 'customers' && (
+        <>
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+        </>
+      )}
+      {module === 'suppliers' && (
+        <>
+          <rect x="1" y="3" width="15" height="13" />
+          <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+          <circle cx="5.5" cy="18.5" r="2.5" />
+          <circle cx="18.5" cy="18.5" r="2.5" />
+        </>
+      )}
       {module === 'rate-calculator' && (
         <>
           <rect x="4" y="2" width="16" height="20" rx="2" />

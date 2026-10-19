@@ -7,12 +7,14 @@ const TODAY = new Date().toLocaleDateString('en-GB', {
   year: 'numeric',
 });
 
-export type View = 'overview' | 'team' | 'activity';
+export type View = 'overview' | 'finance' | 'team' | 'activity' | 'businesses';
 
 const OWNER_NAV: { id: View; label: string }[] = [
   { id: 'overview', label: 'Overview' },
+  { id: 'finance', label: 'Finance' },
   { id: 'team', label: 'Team' },
   { id: 'activity', label: 'Activity' },
+  { id: 'businesses', label: 'Businesses' },
 ];
 
 interface HeaderProps {

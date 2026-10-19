@@ -167,3 +167,19 @@
   font-size: 14px;
   color: var(--muted);
 }
+
+.detail-back {
+  margin-bottom: 18px;
+  font-size: 13.5px;
+}
+
+/* Field messages: beat the generic `.field > span` label style */
+.field > .field-error {
+  font-size: 12px;
+  color: var(--amber);
+  font-weight: 500;
+}
+.field > .field-hint {
+  font-size: 12px;
+  color: var(--muted);
+}
